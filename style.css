@@ -313,6 +313,11 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
 }
 
 @media (max-width: 600px) {
+    /* Performance Optimizations for Mobile */
+    body { background-attachment: scroll; } /* Removes scroll jank on iOS/Android */
+    .glass-card { backdrop-filter: blur(4px); } /* Reduces heavy GPU compositing */
+    button, .nav-links li, .tree-node, .task-checkbox, a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; } /* Removes 300ms tap delay */
+
     .app-container { flex-direction: column; }
     .sidebar { 
         width: 100%; 
@@ -326,9 +331,10 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
         bottom: 0; 
         left: 0;
         z-index: 1000;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: none; /* Removed blur on nav for performance */
         height: 65px;
+        will-change: transform;
     }
     .logo { display: none; }
     .nav-links { 
@@ -359,6 +365,7 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
     .content-area { 
         padding: 1.25rem 1rem 80px 1rem; 
         height: 100vh;
+        -webkit-overflow-scrolling: touch; /* Momentum scrolling */
     }
     header h1 { font-size: 1.5rem; }
     header p { font-size: 0.85rem; }
