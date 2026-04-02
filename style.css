@@ -307,6 +307,9 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
 @media (max-width: 900px) {
     .two-column { grid-template-columns: 1fr; }
     .finance-overview { flex-direction: column; gap: 1rem; text-align: center; }
+    .split-view { flex-direction: column; height: auto; gap: 1.5rem; }
+    .time-tree-sidebar { width: 100%; max-height: 220px; padding: 1rem; }
+    .content-vertical { overflow: visible; height: auto; padding-right: 0;}
 }
 
 @media (max-width: 600px) {
