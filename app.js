@@ -122,7 +122,7 @@ function setupNavigation() {
 
             item.classList.add('active');
             const targetId = item.getAttribute('data-tab');
-            $(`#${targetId}`).classList.add('active');
+            targetId && $(`#${targetId}`).classList.add('active');
         });
     });
 }
