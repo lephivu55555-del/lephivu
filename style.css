@@ -314,9 +314,54 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
 
 @media (max-width: 600px) {
     .app-container { flex-direction: column; }
-    .sidebar { width: 100%; padding: 1rem; flex-direction: row; align-items: center; justify-content: space-between; border-right: none; border-bottom: 1px solid var(--card-border); }
-    .logo { margin-bottom: 0; padding: 0;}
-    .nav-links { flex-direction: row; gap: 0; overflow-x: auto;}
-    .nav-links li { padding: 0.5rem 1rem; font-size: 0.9rem; }
-    .content-area { padding: 1.5rem; }
+    .sidebar { 
+        width: 100%; 
+        padding: 0; 
+        flex-direction: row; 
+        align-items: center; 
+        justify-content: space-between; 
+        border-right: none; 
+        border-top: 1px solid var(--card-border); 
+        position: fixed; 
+        bottom: 0; 
+        left: 0;
+        z-index: 1000;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        height: 65px;
+    }
+    .logo { display: none; }
+    .nav-links { 
+        display: flex;
+        flex-direction: row; 
+        width: 100%; 
+        justify-content: space-around; 
+        align-items: center;
+        overflow: hidden; 
+    }
+    .nav-links li { 
+        padding: 0.5rem 0; 
+        font-size: 0.65rem; 
+        flex-direction: column; 
+        gap: 0.3rem; 
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+        border-left: none !important;
+        border-top: 3px solid transparent;
+    }
+    .nav-links li.active {
+        background: rgba(59, 130, 246, 0.1);
+        border-top-color: var(--accent);
+    }
+    .nav-links li svg { width: 20px; height: 20px; margin: 0 auto; display: block; }
+    
+    .content-area { 
+        padding: 1.25rem 1rem 80px 1rem; 
+        height: 100vh;
+    }
+    header h1 { font-size: 1.5rem; }
+    header p { font-size: 0.85rem; }
+    .glass-card { padding: 1.25rem 1rem; }
+    .primary-btn { padding: 0.6rem 1rem; font-size: 0.9rem;}
 }
