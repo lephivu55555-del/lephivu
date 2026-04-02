@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSync - Quản lý cá nhân</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Gate -->
+    <div id="login-gate" class="login-overlay">
+        <div class="glass-card login-card">
+            <h2 style="margin-bottom: 2rem; text-align: center; color: var(--text-primary)">Bảo mật truy cập</h2>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div class="form-group">
+                <input type="password" id="site-password" placeholder="Nhập mật khẩu..." style="text-align: center; font-size: 1.1rem; padding: 1rem;">
+            </div>
+            <p id="login-error" style="color: var(--danger); text-align: center; margin-bottom: 1rem; opacity: 0; font-size: 0.9rem;">Mật khẩu không chính xác!</p>
+            <button id="login-btn" class="primary-btn w-100" style="padding: 1rem;">Mở khóa ứng dụng</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="main-app" style="display: none;">
+        <!-- Sidebar Menu -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>LifeSync</h2>
+                <div class="subtitle">Personal OS</div>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="dashboard">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    Tổng quan
+                </li>
+                <li data-tab="personal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Cá nhân
+                </li>
+                <li data-tab="work">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    Công việc
+                </li>
+                <li data-tab="finance">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Tài chính
+                </li>
+                <li data-tab="gym">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18"></path><path d="M18 3v18"></path><path d="M6 12h12"></path><rect x="4" y="3" width="4" height="4" rx="1"></rect><rect x="16" y="3" width="4" height="4" rx="1"></rect><rect x="4" y="17" width="4" height="4" rx="1"></rect><rect x="16" y="17" width="4" height="4" rx="1"></rect></svg>
+                    Lịch tập Gym
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <header>
+                    <h1>Xin chào, <span id="user-greeting">bạn</span> <span class="wave">👋</span></h1>
+                    <p>Hôm nay thế nào? Hãy giữ mọi thứ trong tầm kiểm soát nhé.</p>
+                </header>
+                
+                <div class="dashboard-grid">
+                    <div class="glass-card summary-card">
+                        <h3>Công việc hôm nay</h3>
+                        <div class="big-number" id="dash-tasks-count">0</div>
+                        <p>Việc cần làm</p>
+                    </div>
+                    <div class="glass-card summary-card">
+                        <h3>Số dư hiện tại</h3>
+                        <div class="big-number highlight" id="dash-balance">0đ</div>
+                        <p>Tháng này</p>
+                    </div>
+                    <div class="glass-card summary-card">
+                        <h3>Gym buổi tới</h3>
+                        <div class="big-text" id="dash-gym-next">Chưa có lịch</div>
+                        <p>Giữ sức khỏe</p>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="margin-top: 2rem;">
+                    <h2>Việc chưa hoàn thành (Hôm nay)</h2>
+                    <ul id="dash-pending-tasks" class="item-list scrollable-list" style="margin-top: 1rem;">
+                        <!-- Tasks rendered via JS -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Personal Tab -->
+            <section id="personal" class="tab-content">
+                <header>
+                    <h1>Không gian Cá nhân</h1>
+                    <p>Quản lý cuộc sống, sức khỏe và thói quen của bạn.</p>
+                </header>
+
+                <div class="split-view">
+                    <!-- Khu vực Cây Thời Gian -->
+                    <div class="time-tree-sidebar">
+                        <h3>Dòng thời gian</h3>
+                        <div class="new-day-btn-wrapper">
+                            <button id="personal-today-btn" class="primary-btn w-100" style="margin-top: 1rem; margin-bottom: 1rem; font-size: 0.9rem;">Hôm nay</button>
+                        </div>
+                        <ul id="personal-time-tree" class="tree-list">
+                            <!-- JS Tree injected here -->
+                        </ul>
+                    </div>
+
+                    <!-- Khu vực Nội Dung (Trên-Dưới) -->
+                    <div class="content-vertical">
+                        <h2 id="personal-current-date-header" class="date-header">Đang tải...</h2>
+                        
+                        <!-- Task List -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h2>Kế hoạch cá nhân</h2>
+                            </div>
+                            <div class="add-input-group">
+                                <input type="text" id="new-personal-task-input" placeholder="Bạn cần làm gì..." autocomplete="off">
+                                <button id="add-personal-task-btn" class="primary-btn">+</button>
+                            </div>
+                            <ul id="personal-task-list" class="item-list"></ul>
+                        </div>
+
+                        <!-- Diary -->
+                        <div class="glass-card">
+                            <h2>Nhật ký cá nhân</h2>
+                            <div class="diary-container">
+                                <textarea id="personal-diary-entry" placeholder="Chia sẻ suy nghĩ và cảm xúc của bạn trong ngày..."></textarea>
+                                <button id="save-personal-diary-btn" class="primary-btn">Lưu ghi chép</button>
+                                <span id="personal-diary-status" class="status-msg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Work Tab -->
+            <section id="work" class="tab-content">
+                <header>
+                    <h1>Không gian Công việc</h1>
+                    <p>Sắp xếp công việc, dự án và ghi chú họp hành.</p>
+                </header>
+
+                <div class="split-view">
+                    <!-- Khu vực Cây Thời Gian -->
+                    <div class="time-tree-sidebar">
+                        <h3>Dòng thời gian</h3>
+                        <div class="new-day-btn-wrapper">
+                            <button id="work-today-btn" class="primary-btn w-100" style="margin-top: 1rem; margin-bottom: 1rem; font-size: 0.9rem;">Hôm nay</button>
+                        </div>
+                        <ul id="work-time-tree" class="tree-list">
+                            <!-- JS Tree injected here -->
+                        </ul>
+                    </div>
+
+                    <!-- Khu vực Nội Dung (Trên-Dưới) -->
+                    <div class="content-vertical">
+                        <h2 id="work-current-date-header" class="date-header">Đang tải...</h2>
+                        
+                        <!-- Task List -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h2>Kế hoạch công việc</h2>
+                            </div>
+                            <div class="add-input-group">
+                                <input type="text" id="new-work-task-input" placeholder="Công việc cần hoàn thành..." autocomplete="off">
+                                <button id="add-work-task-btn" class="primary-btn">+</button>
+                            </div>
+                            <ul id="work-task-list" class="item-list"></ul>
+                        </div>
+
+                        <!-- Diary -->
+                        <div class="glass-card">
+                            <h2>Nhật ký / Ghi chú làm việc</h2>
+                            <div class="diary-container">
+                                <textarea id="work-diary-entry" placeholder="Ghi chú cuộc họp, ý tưởng dự án, tiến độ công việc..."></textarea>
+                                <button id="save-work-diary-btn" class="primary-btn">Lưu ghi chú</button>
+                                <span id="work-diary-status" class="status-msg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Finance Tab -->
+            <section id="finance" class="tab-content">
+                <header>
+                    <h1>Quản lý tài chính</h1>
+                    <p>Theo dõi dòng tiền chặt chẽ.</p>
+                </header>
+
+                <div class="finance-overview glass-card">
+                    <div class="finance-stat">
+                        <span class="label">Tổng Thu</span>
+                        <span class="value income-text" id="total-income">0 ₫</span>
+                    </div>
+                    <div class="finance-stat">
+                        <span class="label">Tổng Chi</span>
+                        <span class="value expense-text" id="total-expense">0 ₫</span>
+                    </div>
+                    <div class="finance-stat highlight-stat">
+                        <span class="label">Số Dư</span>
+                        <span class="value" id="current-balance">0 ₫</span>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <!-- Add Transaction -->
+                    <div class="glass-card">
+                        <h2>Thêm Giao Dịch</h2>
+                        <form id="finance-form">
+                            <div class="form-group">
+                                <label>Loại</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="fin-type" value="expense" checked> 📉 Chi tiêu</label>
+                                    <label><input type="radio" name="fin-type" value="income"> 📈 Thu nhập</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Số tiền (VNĐ)</label>
+                                <input type="text" inputmode="numeric" id="fin-amount" class="amount-input" required placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả</label>
+                                <input type="text" id="fin-desc" required placeholder="VD: Ăn trưa, Nhận lương...">
+                            </div>
+                            <button type="submit" class="primary-btn w-100">Ghi nhận</button>
+                        </form>
+                    </div>
+
+                    <!-- Transaction List -->
+                    <div class="glass-card">
+                        <h2>Lịch Sử Giao Dịch</h2>
+                        <ul id="finance-list" class="item-list scrollable-list">
+                            <!-- Transactions here -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gym Tracker Tab -->
+            <section id="gym" class="tab-content">
+                <header>
+                    <h1>Lịch Tập Gym</h1>
+                    <p>Ghi nhận tiến độ tập luyện của bạn.</p>
+                </header>
+                
+                <div class="two-column">
+                    <!-- Add Routine -->
+                    <div class="glass-card">
+                        <h2>Bài Tập Hôm Nay</h2>
+                        <form id="gym-form">
+                            <div class="form-group">
+                                <label>Tên bài tập</label>
+                                <input type="text" id="gym-name" required placeholder="VD: Bench Press, Dips...">
+                            </div>
+                            <div class="form-group">
+                                <label>Chi tiết (Hiệp/Lần lặp/Mức tạ)</label>
+                                <input type="text" id="gym-details" placeholder="VD: 3 hiệp x 10 cái x 20kg">
+                            </div>
+                            <button type="submit" class="primary-btn w-100">Lưu bài tập</button>
+                        </form>
+                    </div>
+
+                    <!-- Routine List -->
+                    <div class="glass-card">
+                        <h2>Danh sách Bài Tập</h2>
+                        <ul id="gym-list" class="item-list scrollable-list">
+                            <!-- Gym routines here -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
