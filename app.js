@@ -90,6 +90,7 @@ function ensureLogExists(dateStr) {
             personalDiary: '',
             workDiary: ''
         };
+        saveData(); // Đảm bảo lưu liền để xuất hiện và giữ vững khi load lại
     }
 }
 
@@ -100,6 +101,18 @@ function initApp() {
     // Bind global buttons
     $('#personal-today-btn').addEventListener('click', () => loadDailyData('personal', getTodayStr()));
     $('#work-today-btn').addEventListener('click', () => loadDailyData('work', getTodayStr()));
+    
+    $('#personal-date-picker').addEventListener('change', (e) => {
+        if (e.target.value) {
+            loadDailyData('personal', e.target.value);
+        }
+    });
+
+    $('#work-date-picker').addEventListener('change', (e) => {
+        if (e.target.value) {
+            loadDailyData('work', e.target.value);
+        }
+    });
     
     // Init dates
     loadDailyData('personal', getTodayStr());
@@ -122,7 +135,7 @@ function setupNavigation() {
 
             item.classList.add('active');
             const targetId = item.getAttribute('data-tab');
-            targetId && $(`#${targetId}`).classList.add('active');
+            $(`#${targetId}`).classList.add('active');
         });
     });
 }
@@ -146,30 +159,63 @@ function renderTimeTree(domain) {
     const treeEl = $(`#${domain}-time-tree`);
     treeEl.innerHTML = '';
     
-    const dates = Object.keys(appData.dailyLogs).sort().reverse();
     const today = getTodayStr();
-    if (!dates.includes(today)) dates.unshift(today);
+    const dates = Object.keys(appData.dailyLogs);
+    if (!dates.includes(today)) dates.push(today);
+    dates.sort((a,b) => b.localeCompare(a));
     
-    let currentMonthStr = '';
+    const treeData = {};
+    dates.forEach(d => {
+        const [y, m, day] = d.split('-');
+        if (!treeData[y]) treeData[y] = {};
+        if (!treeData[y][m]) treeData[y][m] = [];
+        treeData[y][m].push(d);
+    });
+
     const activeDateStr = domain === 'personal' ? currentPersonalDateStr : currentWorkDateStr;
-    
-    dates.forEach(dateStr => {
-        const monthPrefix = dateStr.substring(0, 7); 
-        if (monthPrefix !== currentMonthStr) {
-            const monthEl = document.createElement('div');
-            monthEl.className = 'tree-month';
-            monthEl.textContent = `Tháng ${monthPrefix.substring(5,7)} / ${monthPrefix.substring(0,4)}`;
-            treeEl.appendChild(monthEl);
-            currentMonthStr = monthPrefix;
+
+    for (const year of Object.keys(treeData).sort((a,b) => b.localeCompare(a))) {
+        const yearDetails = document.createElement('details');
+        yearDetails.className = 'tree-folder year-folder';
+        yearDetails.open = year === activeDateStr.substring(0,4); // Mở sẵn thư mục năm hiện tại
+        
+        const yearSummary = document.createElement('summary');
+        yearSummary.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Năm ${year}`;
+        yearDetails.appendChild(yearSummary);
+        
+        const monthContainer = document.createElement('div');
+        monthContainer.className = 'folder-content';
+
+        for (const month of Object.keys(treeData[year]).sort((a,b) => b.localeCompare(a))) {
+            const monthDetails = document.createElement('details');
+            monthDetails.className = 'tree-folder month-folder';
+            monthDetails.open = year === activeDateStr.substring(0,4) && month === activeDateStr.substring(5,7);
+            
+            const monthSummary = document.createElement('summary');
+            monthSummary.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Tháng ${month}`;
+            monthDetails.appendChild(monthSummary);
+            
+            const dayContainer = document.createElement('div');
+            dayContainer.className = 'folder-content';
+
+            treeData[year][month].forEach(dateStr => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'tree-node tree-file';
+                if (dateStr === activeDateStr) dayDiv.classList.add('active');
+                
+                dayDiv.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> <span style="margin-left:4px">${dateStr === getTodayStr() ? 'Hôm nay' : formatDateOnly(dateStr)}</span>`;
+                
+                dayDiv.addEventListener('click', () => loadDailyData(domain, dateStr));
+                dayContainer.appendChild(dayDiv);
+            });
+            
+            monthDetails.appendChild(dayContainer);
+            monthContainer.appendChild(monthDetails);
         }
         
-        const li = document.createElement('li');
-        li.className = 'tree-node';
-        if (dateStr === activeDateStr) li.classList.add('active');
-        li.textContent = dateStr === today ? 'Hôm nay' : formatDateOnly(dateStr);
-        li.addEventListener('click', () => loadDailyData(domain, dateStr));
-        treeEl.appendChild(li);
-    });
+        yearDetails.appendChild(monthContainer);
+        treeEl.appendChild(yearDetails);
+    }
 }
 
 function renderDailyContent(domain, dateStr) {
@@ -412,42 +458,58 @@ function updateDashboard() {
     let activeTasks = 0;
     let pendingTaskElements = [];
 
-    if (appData.dailyLogs && appData.dailyLogs[today]) {
-        const pTasks = appData.dailyLogs[today].personalTasks.filter(t => !t.completed);
-        const wTasks = appData.dailyLogs[today].workTasks.filter(t => !t.completed);
-        activeTasks = pTasks.length + wTasks.length;
+    // Duyệt qua tất cả các log, từ cũ tới mới để quét việc tồn đọng quá khứ + hiện tại
+    const allDates = Object.keys(appData.dailyLogs).sort();
 
-        // Render pending tasks list for dashboard
-        pTasks.forEach(t => {
-            pendingTaskElements.push(`
-                <li class="list-item" style="padding: 0.75rem 1rem;">
-                    <div class="task-item" style="gap: 0.75rem;">
-                        <input type="checkbox" class="task-checkbox" onchange="toggleTask('${t.id}', 'personal', '${today}')">
-                        <span class="task-text">${t.text}</span>
-                        <span style="font-size: 0.7rem; color: #a78bfa; background: rgba(167, 139, 250, 0.1); padding: 2px 6px; border-radius: 8px;">Cá nhân</span>
-                    </div>
-                </li>
-            `);
-        });
+    allDates.forEach(date => {
+        // Gom ngày quá khứ và cả ngày hôm nay
+        if (date <= today) {
+            const pTasks = appData.dailyLogs[date].personalTasks.filter(t => !t.completed);
+            const wTasks = appData.dailyLogs[date].workTasks.filter(t => !t.completed);
+            activeTasks += (pTasks.length + wTasks.length);
 
-        wTasks.forEach(t => {
-            pendingTaskElements.push(`
-                <li class="list-item" style="padding: 0.75rem 1rem;">
-                    <div class="task-item" style="gap: 0.75rem;">
-                        <input type="checkbox" class="task-checkbox" onchange="toggleTask('${t.id}', 'work', '${today}')">
-                        <span class="task-text">${t.text}</span>
-                        <span style="font-size: 0.7rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 2px 6px; border-radius: 8px;">Công việc</span>
-                    </div>
-                </li>
-            `);
-        });
-    }
+            pTasks.forEach(t => {
+                pendingTaskElements.push(`
+                    <li class="list-item" style="padding: 0.75rem 1rem;">
+                        <div class="task-item" style="gap: 0.75rem; align-items: center;">
+                            <input type="checkbox" class="task-checkbox" onchange="toggleTask('${t.id}', 'personal', '${date}')">
+                            <div class="task-content" style="display:flex; flex-direction:column; width: 100%;">
+                                <span class="task-text">${t.text}</span>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                                    <span style="font-size: 0.7rem; color: #a78bfa; background: rgba(167, 139, 250, 0.1); padding: 2px 6px; border-radius: 8px;">Cá nhân</span>
+                                    <span style="font-size: 0.7rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 8px;">${date === today ? 'Hôm nay' : formatDateOnly(date)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                `);
+            });
+
+            wTasks.forEach(t => {
+                pendingTaskElements.push(`
+                    <li class="list-item" style="padding: 0.75rem 1rem;">
+                        <div class="task-item" style="gap: 0.75rem; align-items: center;">
+                            <input type="checkbox" class="task-checkbox" onchange="toggleTask('${t.id}', 'work', '${date}')">
+                            <div class="task-content" style="display:flex; flex-direction:column; width: 100%;">
+                                <span class="task-text">${t.text}</span>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                                    <span style="font-size: 0.7rem; color: #fbbf24; background: rgba(251, 191, 36, 0.1); padding: 2px 6px; border-radius: 8px;">Công việc</span>
+                                    <span style="font-size: 0.7rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 8px;">${date === today ? 'Hôm nay' : formatDateOnly(date)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                `);
+            });
+        }
+    });
+
     $('#dash-tasks-count').textContent = activeTasks;
 
     const dashPendingList = $('#dash-pending-tasks');
     if (dashPendingList) {
         if (pendingTaskElements.length === 0) {
-            dashPendingList.innerHTML = `<li style="text-align:center; padding: 1.5rem; color: var(--text-secondary)">Tuyệt vời, bạn đã hoàn thành mọi việc của hôm nay!</li>`;
+            dashPendingList.innerHTML = `<li style="text-align:center; padding: 1.5rem; color: var(--text-secondary)">Tuyệt vời, không còn việc nào tồn đọng!</li>`;
         } else {
             dashPendingList.innerHTML = pendingTaskElements.join('');
         }

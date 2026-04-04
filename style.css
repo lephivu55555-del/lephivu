@@ -296,11 +296,33 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
 .content-vertical { flex: 1; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; padding-right: 0.5rem; }
 .date-header { font-size: 1.4rem; color: var(--accent); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
 
-.tree-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
-.tree-node { padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; color: var(--text-secondary); transition: var(--transition); font-size: 0.95rem; }
-.tree-node:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
-.tree-node.active { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%); color: var(--text-primary); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
-.tree-month { font-weight: 600; color: var(--text-primary); margin-top: 1rem; margin-bottom: 0.25rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 0.5rem; }
+.date-picker-input {
+    width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border);
+    color: var(--text-primary); padding: 0.6rem; border-radius: 8px; font-family: inherit;
+    font-size: 0.95rem; outline: none; margin-bottom: 1rem; color-scheme: dark;
+}
+.date-picker-input::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+.date-picker-input:hover { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+
+/* Tree Folder Styles */
+.tree-container { display: flex; flex-direction: column; gap: 0.2rem; }
+details.tree-folder summary {
+    list-style: none; cursor: pointer; padding: 0.5rem; border-radius: 6px;
+    font-weight: 600; color: var(--text-secondary); display: flex; align-items: center;
+    gap: 8px; transition: var(--transition); user-select: none; font-size: 0.9rem;
+}
+details.tree-folder summary::-webkit-details-marker { display: none; }
+details.tree-folder summary:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
+details.tree-folder[open] > summary { color: var(--accent); }
+details.tree-folder .folder-content {
+    margin-left: 14px; padding-left: 6px; border-left: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex; flex-direction: column; gap: 2px; margin-top: 2px; margin-bottom: 4px;
+}
+
+.tree-node { padding: 0.5rem 0.5rem 0.5rem 0px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); transition: var(--transition); font-size: 0.9rem; }
+.tree-node:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); padding-left: 4px; }
+.tree-node.active { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%); color: var(--text-primary); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding-left: 8px;}
+.tree-file { display: flex; align-items: center; margin-left: 8px; }
 
 
 /* Responsive */
@@ -308,7 +330,7 @@ textarea { resize: vertical; min-height: 150px; margin-bottom: 1rem; }
     .two-column { grid-template-columns: 1fr; }
     .finance-overview { flex-direction: column; gap: 1rem; text-align: center; }
     .split-view { flex-direction: column; height: auto; gap: 1.5rem; }
-    .time-tree-sidebar { width: 100%; max-height: 220px; padding: 1rem; }
+    .time-tree-sidebar { width: 100%; max-height: 35vh; padding: 1rem; }
     .content-vertical { overflow: visible; height: auto; padding-right: 0;}
 }
 
